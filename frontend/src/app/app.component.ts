@@ -19,11 +19,11 @@ interface Estado { espera: Turno[]; mesas: { id: number; turno: Turno | null }[]
           <div class="queue-list" *ngIf="estado?.espera?.length; else vacio"><div class="queue-item" *ngFor="let t of estado?.espera"><span class="ticket">{{ t.numero | number:'3.0' }}</span><div class="person"><b>{{ t.nombre }}</b><small>Esperando atención</small></div><span class="waiting">En fila</span></div></div><ng-template #vacio><div class="empty"><span>✓</span><b>La fila está vacía</b><small>Agrega un cliente para comenzar.</small></div></ng-template>
         </div>
         <div class="panel desks-panel"><div class="panel-heading"><div><h2>Mesas de atención</h2><p>Asigna el siguiente turno o libera la mesa</p></div></div><div class="desks"><article class="desk" *ngFor="let m of estado?.mesas"><div class="desk-top"><span class="desk-icon">▦</span><span class="desk-state" [class.busy]="!!m.turno">{{ m.turno ? 'Atendiendo' : 'Disponible' }}</span></div><h3>Mesa {{ m.id }}</h3><ng-container *ngIf="m.turno; else libre"><div class="active-ticket">#{{ m.turno.numero | number:'3.0' }}</div><p class="customer">{{ m.turno.nombre }}</p><button class="secondary" (click)="liberar(m.id)">Finalizar atención</button></ng-container><ng-template #libre><p class="no-customer">Lista para recibir un cliente</p><button class="primary full" (click)="siguiente(m.id)" [disabled]="!estado?.espera?.length">Llamar siguiente →</button></ng-template></article></div></div>
-      </section><footer><span>Atención al cliente</span><span>Los datos se guardan localmente en el servidor.</span></footer>
+      </section><footer><span>Atención al cliente</span><span>Los turnos se guardan en la base de datos.</span></footer>
     </main>`
 })
 export class AppComponent implements OnInit {
-  private http = inject(HttpClient); private api = 'http://localhost:8000/api';
+  private http = inject(HttpClient); private api = '/api';
   estado: Estado | null = null; nombre = ''; error = ''; cargando = false; hoy = new Date();
   get mesasOcupadas(): number { return this.estado?.mesas.filter(m => !!m.turno).length ?? 0; }
   ngOnInit(): void { this.cargar(); }

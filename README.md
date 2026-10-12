@@ -41,6 +41,17 @@ npm start
 
 Abre `http://localhost:4200`. La API permite solicitudes de desarrollo desde ese origen.
 
+## Desplegar frontend y API en Vercel
+
+El archivo `vercel.json` configura dos servicios en un mismo proyecto: Angular para `/` y FastAPI para `/api/*`. Vercel publica el frontend en su CDN y ejecuta la API como función Python.
+
+1. En Vercel, importa el repositorio `Josedejesus-lan/Gestion-cliente` y deja la raíz del proyecto en `./` para que lea `vercel.json`.
+2. Agrega una integración de PostgreSQL desde Vercel Marketplace (por ejemplo, Neon) al proyecto.
+3. Confirma que la integración agregue `DATABASE_URL` al entorno de producción. La API convierte las URL habituales `postgres://` o `postgresql://` para usar el controlador Psycopg instalado.
+4. Despliega el proyecto. La aplicación web y las rutas `/api/estado`, `/api/turnos` y `/api/mesas/...` compartirán el mismo dominio.
+
+Vercel no conserva el archivo SQLite de una función entre ejecuciones. Por eso el backend requiere una base PostgreSQL persistente en producción; si falta `DATABASE_URL`, la API muestra un error de configuración en lugar de crear una base temporal que pueda perder turnos.
+
 ## Publicar en GitHub
 
 Inicializa Git en esta carpeta y crea un repositorio vacío en tu cuenta de GitHub. Después conecta la URL que GitHub te proporcione:

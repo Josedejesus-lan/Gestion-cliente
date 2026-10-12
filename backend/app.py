@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from enum import StrEnum
+import os
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,8 +9,18 @@ from pydantic import BaseModel, Field
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
-DATABASE_URL = "sqlite:///./atencion.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL and os.getenv("VERCEL"):
+    raise RuntimeError("Configura DATABASE_URL con una base PostgreSQL persistente en Vercel.")
+DATABASE_URL = DATABASE_URL or "sqlite:///./atencion.db"
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+engine_options = {"pool_pre_ping": True}
+if DATABASE_URL.startswith("sqlite:"):
+    engine_options["connect_args"] = {"check_same_thread": False}
+engine = create_engine(DATABASE_URL, **engine_options)
 Session = sessionmaker(bind=engine, expire_on_commit=False)
 
 
